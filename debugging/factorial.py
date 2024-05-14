@@ -14,3 +14,4 @@ if len(sys.argv) != 2:
 
 f = factorial(int(sys.argv[1]))
 print(f)
+
