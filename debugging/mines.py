@@ -3,7 +3,7 @@ import random
 import os
 
 def clear_screen():
-    os.system('clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 class Minesweeper:
     def __init__(self, width=10, height=10, mines=10):
@@ -33,8 +33,6 @@ class Minesweeper:
         count = 0
         for dx in [-1, 0, 1]:
             for dy in [-1, 0, 1]:
-                if dx == 0 and dy == 0:  # Ignorer la case actuelle
-                    continue
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < self.width and 0 <= ny < self.height:
                     if (ny * self.width + nx) in self.mines:
@@ -48,11 +46,16 @@ class Minesweeper:
         if self.count_mines_nearby(x, y) == 0:
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
-                    if dx == 0 and dy == 0:  # Ignorer la case actuelle
-                        continue
                     nx, ny = x + dx, y + dy
                     if 0 <= nx < self.width and 0 <= ny < self.height and not self.revealed[ny][nx]:
                         self.reveal(nx, ny)
+        return True
+
+    def check_win(self):
+        for y in range(self.height):
+            for x in range(self.width):
+                if not self.revealed[y][x] and (y * self.width + x) not in self.mines:
+                    return False
         return True
 
     def play(self):
@@ -61,12 +64,13 @@ class Minesweeper:
             try:
                 x = int(input("Enter x coordinate: "))
                 y = int(input("Enter y coordinate: "))
-                if not (0 <= x < self.width and 0 <= y < self.height):
-                    print("Invalid coordinates. Please enter values within the board size.")
-                    continue
                 if not self.reveal(x, y):
                     self.print_board(reveal=True)
                     print("Game Over! You hit a mine.")
+                    break
+                elif self.check_win():
+                    self.print_board(reveal=True)
+                    print("Congratulations! You won!")
                     break
             except ValueError:
                 print("Invalid input. Please enter numbers only.")
